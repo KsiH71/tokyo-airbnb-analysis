@@ -19,6 +19,7 @@
 1. **Airbnb 도쿄 숙소 데이터 (listings.csv)**
    * 출처: [Inside Airbnb](https://insideairbnb.com/get-the-data/)
    * 내용: 숙소 유형, 수용 인원, 침실/욕실 수, 편의시설, 평점, 리뷰 수, 호스트 정보 등
+> ⚠️ listings.csv는 용량 문제로 파일이 레포에 포함되지 않습니다. 위 링크에서 직접 다운로드하세요.
 
 2. **도쿄 철도역 데이터 (N02-25\_Station.geojson)**
    * 출처: [일본 국토교통성 MLIT](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N02-2025.html) (2025년)
@@ -32,7 +33,6 @@
    * 출처: [Inside Airbnb](https://insideairbnb.com/get-the-data/)
    * 내용: 도쿄 행정구역 경계 데이터 (지도 시각화용)
 
-> ⚠️ listings.csv는 용량 문제로 레포에 포함되지 않습니다. 위 링크에서 직접 다운로드하세요.
 
 ---
 
