@@ -13,7 +13,7 @@
 
 본 프로젝트는 도쿄 에어비앤비 숙소 데이터와 일본 국토교통성의 공간(GIS) 데이터를 융합하여 **"어떤 요인이 도쿄 에어비앤비 가격을 결정하는가"** 를 분석하고, 신규 호스트를 위한 데이터 기반 가격 전략을 도출하는 것을 목표로 합니다.
 
-머신러닝 모델(RandomForest, Ridge, GradientBoosting)을 활용한 가격 회귀 분석을 수행하였으며, 위치·내부스펙·호스트·편의시설 등 다양한 변수군의 영향력을 비교 분석하였습니다.
+머신러닝 모델(RandomForest, Ridge, GradientBoosting)을 활용한 가격 회귀 분석을 수행하였으며, 위치·내부스펙·호스트·편의시설 등 다양한 변수군의 영향력을 비교 분석하였습니다. 특히 호스트 전략 도출 단계에서는 단순 그룹별 중앙값 비교 대신 **부분 의존성(Partial Dependence) 기반의 한계 효과 분석**을 적용하여, 위치·지가 등 교란 변수를 통제한 각 변수의 순수 가격 기여도를 정량화하였습니다.
 
 ---
 
@@ -64,7 +64,10 @@
 ├── 📁 notebooks/
 │   ├── 01_preprocessing.ipynb
 │   ├── 02_cleaning.ipynb
-│   └── final_model_clean.ipynb           ← 모델 학습 및 결과 시각화 (최종)
+│   └── tokyo_airbnb_price_analysis.ipynb  ← 모델 학습 및 결과 시각화 (최종)
+│
+├── 📁 presentation/
+│   └── 도쿄_에어비앤비_가격_분석_및_호스트_전략.pptx
 │
 └── README.md
 ```
@@ -82,7 +85,8 @@ listings.csv (원본 27,945행)
     ↓ 결측치 제거
 final_airbnb.csv (신주쿠 포함)
     ↓ 신주쿠 제외 (아래 참조)
-final_airbnb_without_Shinjuku.csv (최종 분석 데이터)
+    ↓ IQR 기반 가격 이상치 제거
+final_airbnb_without_Shinjuku.csv (최종 분석 데이터, 11,977행)
 ```
 
 ###### 생성된 주요 파생 변수
@@ -99,7 +103,27 @@ final_airbnb_without_Shinjuku.csv (최종 분석 데이터)
 
 ---
 
-###### 6. ⚠️ 데이터 전처리 노트 — 신주쿠(Shinjuku) 제외
+###### 6. 분석 방법론 — 부분 의존성(Partial Dependence) 기반 한계 효과 분석
+
+본 프로젝트의 호스트 전략 도출 단계는 단순 그룹별 중앙값 비교가 아닌, 학습된 RandomForest 모델을 활용한 **부분 의존성 분석**으로 수행되었습니다.
+
+### 방법
+
+도쿄 마켓 표준 가상 인스턴스(`base_host`)를 기준으로, 다른 모든 변수를 고정한 채 관심 변수만 변화시켰을 때의 예측 가격 변화량을 측정하여 각 변수의 **순수 가격 기여도**를 산출합니다. (예측값은 로그 스케일이므로 `np.expm1`로 실제 엔화 환원 후 계산)
+
+### 중앙값 비교 방식 대비 개선점
+
+단순 중앙값 비교는 위치·지가 등 교란 변수가 통제되지 않아 효과가 과대평가되는 문제가 있습니다. 예를 들어 슈퍼호스트 프리미엄은 중앙값 기준 약 +19.9%로 나타났으나, 교란 변수를 통제한 부분 의존성 기준으로는 +0.5%(약 +68엔)로, 상당 부분이 입지 프리미엄에 의한 착시였음이 확인되었습니다.
+
+### 주요 분석 결과
+
+- 교란 변수 통제 후 **수용 인원 확장(3→4인, +약 3,200엔)** 이 가장 강력한 단가 상승 요인으로 확인
+- 편의시설 중에서는 세탁기·주방 등이 유의미한 순수 기여도를 보인 반면, 일부 시설은 효과가 미미하거나 음(-)의 값으로 반전
+- 공시지가 대비 숙박 수익 효율은 역 1.0~1.25km 구간에서 최고치
+
+---
+
+###### 7. ⚠️ 데이터 전처리 노트 — 신주쿠(Shinjuku) 제외
 
 ### 제외 이유
 
@@ -113,7 +137,7 @@ final_airbnb_without_Shinjuku.csv (최종 분석 데이터)
 - 기타 지역 대비 중앙 가격이 유의미하게 높아 **상관관계 분석 왜곡**
 - 본 분석 목적인 **일반 호스트 대상 가격 전략 도출**과 맞지 않음
 
-신주쿠 포함/제외 시 상관관계 히트맵 비교는 `final_model_clean.ipynb` 마지막 부록 셀 참조.
+신주쿠 포함/제외 시 상관관계 히트맵 비교는 `tokyo_airbnb_price_analysis.ipynb` 마지막 부록 셀 참조.
 
 ### 데이터 파일
 
@@ -124,7 +148,7 @@ final_airbnb_without_Shinjuku.csv (최종 분석 데이터)
 
 ---
 
-###### 7. 실행 방법 (Getting Started)
+###### 8. 실행 방법 (Getting Started)
 
 본 프로젝트는 geopandas를 활용한 공간 데이터 연산을 포함하고 있으므로, 전처리 코드 실행 전 아래 패키지 설치가 필수적입니다.
 
@@ -139,8 +163,7 @@ pip install pandas geopandas shapely scikit-learn seaborn matplotlib scipy korea
 **노트북 실행 순서:**
 
 ```
-01_preprocessing.ipynb     →  공간 파생 변수 생성
-02_cleaning.ipynb          →  final_airbnb.csv 생성
-final_model_clean.ipynb    →  모델 학습 및 결과 시각화 (최종)
+01_preprocessing.ipynb              →  공간 파생 변수 생성
+02_cleaning.ipynb                   →  final_airbnb.csv 생성
+tokyo_airbnb_price_analysis.ipynb   →  모델 학습 및 결과 시각화 (최종)
 ```
-
