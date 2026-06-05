@@ -67,7 +67,7 @@
 │   └── tokyo_airbnb_price_analysis.ipynb  ← 모델 학습 및 결과 시각화 (최종)
 │
 ├── 📁 presentation/
-│   └── 도쿄_에어비앤비_가격_분석_및_호스트_전략.pptx
+│   └── 도쿄_에어비앤비_가격_분석_및_호스트_전략.pdf
 │
 └── README.md
 ```
